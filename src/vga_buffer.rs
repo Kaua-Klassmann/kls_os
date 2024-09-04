@@ -18,13 +18,9 @@ lazy_static! {
     static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         row_position: BUFFER_HEIGHT,
-        color_code: get_color_code(),
+        color_code: ColorCode::new(0xf, 0x0),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
-}
-
-fn get_color_code() -> ColorCode {
-    ColorCode::new(0xf, 0x0)
 }
 
 const BUFFER_HEIGHT: usize = 25;
@@ -111,9 +107,9 @@ impl Writer {
 
     #[inline]
     fn clear_row(&mut self, number_row: usize) {
-        let blank = ScreenChar {
+        let blank: ScreenChar = ScreenChar {
             ascii_caracter: b' ',
-            color_code: get_color_code()
+            color_code: self.color_code
         };
 
         self.buffer.chars[number_row].fill(blank);
@@ -126,7 +122,6 @@ impl Write for Writer {
         Ok(())
     }
 }
-
 
 #[doc(hidden)]
 pub fn _print(args: Arguments) {
