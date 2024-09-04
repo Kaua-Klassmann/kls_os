@@ -117,8 +117,8 @@ impl Writer {
 }
 
 impl Write for Writer {
-    fn write_str(&mut self, s: &str) -> Result {
-        self.write_string(s);
+    fn write_str(&mut self, string: &str) -> Result {
+        self.write_string(string);
         Ok(())
     }
 }
