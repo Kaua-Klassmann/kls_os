@@ -56,8 +56,6 @@ struct Writer {
 impl Writer {
     #[inline]
     fn write_byte(&mut self, byte: u8) {
-        let row: usize = BUFFER_HEIGHT - self.row_position;
-
         match byte {
             b'\n' => self.new_line(),
             _ => {
@@ -65,6 +63,7 @@ impl Writer {
                     self.new_line()
                 }
 
+                let row: usize = BUFFER_HEIGHT - self.row_position;
                 let column: usize = self.column_position;
 
                 let color_code: ColorCode = self.color_code;
