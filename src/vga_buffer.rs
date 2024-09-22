@@ -31,7 +31,7 @@ struct ColorCode(u8);
 
 impl ColorCode {
     fn new(foreground: u8, background: u8) -> ColorCode {
-        ColorCode((background as u8) << 4 | (foreground as u8))
+        ColorCode(background << 4 | foreground as u8)
     }
 }
 
@@ -55,7 +55,7 @@ struct Writer {
 
 impl Writer {
     #[inline]
-    fn write_byte(&mut self, byte: &u8) {
+    fn write_byte(&mut self, byte: u8) {
         let row: usize = BUFFER_HEIGHT - self.row_position;
 
         match byte {
@@ -69,7 +69,7 @@ impl Writer {
 
                 let color_code: ColorCode = self.color_code;
                 self.buffer.chars[row][column] = ScreenChar {
-                    ascii_caracter: *byte,
+                    ascii_caracter: byte,
                     color_code
                 };
                 self.column_position += 1;
@@ -81,8 +81,8 @@ impl Writer {
     fn write_string(&mut self, string: &str) {
         for byte in string.bytes() {
             match byte {
-                0x20..0xfe | b'\n' => self.write_byte(&byte),
-                _ => self.write_byte(&0xfe)
+                0x20..0xfe | b'\n' => self.write_byte(byte),
+                _ => self.write_byte(0xfe)
             }
         }
     }
@@ -92,15 +92,10 @@ impl Writer {
         if self.row_position != 1 {
             self.row_position -= 1;
         } else {
-            for row in 1..BUFFER_HEIGHT {
-                for column in 0..BUFFER_WIDTH {
-                    let caracter = &self.buffer.chars[row][column];
-                    self.buffer.chars[row-1][column] = *caracter
-                }
-            }
+            self.buffer.chars.copy_within(1..BUFFER_HEIGHT, 0);
+            self.clear_row(BUFFER_HEIGHT - 1);
         }
 
-        self.clear_row(BUFFER_HEIGHT - 1);
         self.column_position = 0;
     }
 
