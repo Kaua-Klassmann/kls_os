@@ -1,18 +1,9 @@
-#[macro_export]
-macro_rules! print {
-    () => ($crate::vga_buffer::_print("\n"));
-    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
-}
-
-#[macro_export]
-macro_rules! println {
-    () => ($crate::print!("\n"));
-    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
-}
-
 use core::fmt::{Arguments, Result, Write};
 use spin::Mutex;
 use lazy_static::lazy_static;
+
+const BUFFER_HEIGHT: usize = 25;
+const BUFFER_WIDTH: usize = 80;
 
 lazy_static! {
     static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
@@ -23,8 +14,16 @@ lazy_static! {
     });
 }
 
-const BUFFER_HEIGHT: usize = 25;
-const BUFFER_WIDTH: usize = 80;
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
 
 #[derive(Copy, Clone)]
 #[repr(transparent)]
@@ -117,6 +116,7 @@ impl Writer {
 }
 
 impl Write for Writer {
+    #[inline]
     fn write_str(&mut self, string: &str) -> Result {
         self.write_string(string);
         Ok(())
@@ -124,6 +124,7 @@ impl Write for Writer {
 }
 
 #[doc(hidden)]
+#[inline]
 pub fn _print(args: Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
