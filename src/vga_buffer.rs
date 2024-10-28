@@ -31,7 +31,7 @@ struct ColorCode(u8);
 
 impl ColorCode {
     fn new(foreground: u8, background: u8) -> ColorCode {
-        ColorCode(background << 4 | foreground as u8)
+        ColorCode(background << 4 | foreground)
     }
 }
 
